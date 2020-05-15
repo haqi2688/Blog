@@ -1,0 +1,403 @@
+---
+title: "Measles and Schools"
+author: "Yu Qin"
+date: "2020-05-01"
+output: pdf_document
+---
+
+
+
+<div id="yu-qin" class="section level2">
+<h2>Yu Qin</h2>
+<p>This is a document exploring vaccination in schools, with an interest to see if there is a difference in measles vaccination rates between public and private schools. The dataset includes the US state the school is located in (<strong>state</strong>), the category of school (<strong>type</strong>), private or public, the MMR (measles, mumps, rubella) vaccination rate for the school (<strong>mmr</strong>), enrollment number of the school (<strong>enroll</strong>), and medical vaccination exemption rate in the school (<strong>xmed</strong>). Data was obtained from <a href="https://github.com/rfordatascience/tidytuesday" class="uri">https://github.com/rfordatascience/tidytuesday</a>, with original source from The Wallstreet Journal. The dataset, after removing unusable observations, contains 10202 observations. When all NA’s are removed, the dataset contains 6244 observations.</p>
+<p>I am interested in seeing if difference in policies between private, charter, and public schools will show in their MMR vaccination rates becuase the outbreak of measles typically center around schools. I suspect that public school may have better measles vaccination due to stricter government regulation.</p>
+<pre class="r"><code>measles&lt;-readr::read_csv(&#39;https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-25/measles.csv&#39;)
+measles&lt;-measles%&gt;%
+  select(index,name,state,type,enroll,mmr,xmed)%&gt;%
+  filter(mmr&gt;0,enroll&gt;0)%&gt;%unique()%&gt;%
+  filter(!type==&quot;Kindergarten&quot;)%&gt;%
+  mutate(y=ifelse(type==&quot;Public&quot;,1,0))%&gt;%
+  select(state,type,enroll,mmr,xmed,y)</code></pre>
+<p>I created a binary variable y where 1=public school and 0=charter and private schools. Since charter schools are selective and not governed by the ISD, and do not have to abide by state laws, they are more similar in policy to private schools, which is why I grouped them together.</p>
+<pre class="r"><code>mman&lt;-manova(cbind(enroll,mmr,xmed)~type, data=measles)
+summary(mman)</code></pre>
+<pre><code>##             Df  Pillai approx F num Df den Df    Pr(&gt;F)    
+## type         2 0.13234   147.39      6  12480 &lt; 2.2e-16 ***
+## Residuals 6241                                             
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>summary.aov(mman)</code></pre>
+<pre><code>##  Response enroll :
+##               Df   Sum Sq Mean Sq F value    Pr(&gt;F)    
+## type           2  3361166 1680583  180.73 &lt; 2.2e-16 ***
+## Residuals   6241 58035220    9299                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+##  Response mmr :
+##               Df Sum Sq Mean Sq F value    Pr(&gt;F)    
+## type           2   7513  3756.3  59.369 &lt; 2.2e-16 ***
+## Residuals   6241 394863    63.3                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+##  Response xmed :
+##               Df Sum Sq Mean Sq F value    Pr(&gt;F)    
+## type           2   9346  4673.0     369 &lt; 2.2e-16 ***
+## Residuals   6241  79036    12.7                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## 3958 observations deleted due to missingness</code></pre>
+<pre class="r"><code>pairwise.t.test(measles$enroll,measles$type, p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  measles$enroll and measles$type 
+## 
+##         Charter Private
+## Private 8.9e-05 -      
+## Public  8.4e-07 &lt; 2e-16
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(measles$mmr,measles$type, p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  measles$mmr and measles$type 
+## 
+##         Charter Private
+## Private 5.6e-11 -      
+## Public  &lt; 2e-16 &lt; 2e-16
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(measles$xmed,measles$type,p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  measles$xmed and measles$type 
+## 
+##         Charter Private
+## Private 3.6e-10 -      
+## Public  0.12    &lt; 2e-16
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>0.05/13</code></pre>
+<pre><code>## [1] 0.003846154</code></pre>
+<p>I did 1 MANOVA, 3 ANOVAs, and 9 t-tests for a total of 13 hypothesis tests, so with type-I error rate at 0.05 (alpha), the boneferroni adjusted significance level should be 0.003846154. At this significance level, public and charter schools do not differ in medical exemption rate, but private and charter schools as well as private and public schools differ significantly. Private and charter, private and public, and public and charter, all differ in enrollment. Similarly, private and charter, private and public, and public and charter, all differ in MMR vaccination rate as well.</p>
+<p>Because these data were collected intentionally from as many schools as possible, the samples were not at random. Multivariate normality is most likely not met, but n&gt;25 for each group. Homogeneity is likely not met since there is probably unequal covariance between the dependent variables. There is also probably no linear relationship the dependent variables (such as enrollment and MMR vaccination). There are probably no extreme univariate or multivariate outliers in the dataset, and probably no multicollinearity.</p>
+<pre class="r"><code>rand_dist&lt;-vector()
+for(i in 1:5000){
+new&lt;-data.frame(mmr=sample(measles$mmr),
+                type=measles$y)
+rand_dist[i]&lt;-mean(new[new$type==1,]$mmr)-
+  mean(new[new$type==0,]$mmr)
+}
+measles%&gt;%group_by(y)%&gt;%summarize(mean=mean(mmr))%&gt;%
+                            summarize(diff(mean))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `diff(mean)`
+##          &lt;dbl&gt;
+## 1         3.30</code></pre>
+<pre class="r"><code>mean(rand_dist&gt;3.302014|rand_dist&lt; -3.302014)</code></pre>
+<pre><code>## [1] 0</code></pre>
+<pre class="r"><code>ggplot()+geom_histogram(aes(rand_dist))+
+          xlab(&quot;Difference in mean MMR&quot;)</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>In a randomized sample,the null hypothesis is that the public schools do not differ from non-public school (charter, private) in MMR vaccination rates. The alternative hypothesis is that public schools do have different MMR vaccination rates than non-public schools. The true mean difference is 3.302014 between public and non-public schools, and the calculated p-value for randomized sample is 0. The null is rejected, which means that there is a difference in MMR vaccination rate between public and non-public schools. From the histogram, we can see that all of the mean differences from the randomized sample fall between -1 and 1, far from the true mean difference.</p>
+<pre class="r"><code>measles1&lt;-measles
+measles1$enroll_c&lt;-measles$enroll-mean(measles$enroll)
+measles1$xmed_c&lt;-measles$xmed-mean(measles$xmed,na.rm=T)
+fit&lt;-lm(mmr~enroll_c*type, data=measles1)
+summary(fit)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = mmr ~ enroll_c * type, data = measles1)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -93.911   0.074   2.984   3.412  15.321 
+## 
+## Coefficients:
+##                      Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)          89.52653    0.73408 121.958  &lt; 2e-16 ***
+## enroll_c              0.05937    0.01440   4.122 3.78e-05 ***
+## typePrivate           3.98309    0.85083   4.681 2.89e-06 ***
+## typePublic            5.20283    0.74022   7.029 2.22e-12 ***
+## enroll_c:typePrivate -0.03598    0.01548  -2.324 0.020171 *  
+## enroll_c:typePublic  -0.05596    0.01442  -3.881 0.000105 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 8.785 on 10196 degrees of freedom
+## Multiple R-squared:  0.02766,    Adjusted R-squared:  0.02718 
+## F-statistic:    58 on 5 and 10196 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p>Predicted MMR vaccination rate for charter schools when enrollment is average is 89.52653. MMR vaccination rate increases 0.05937 percentage in charter schools for every 1-person increase in enrollment on average. When enrollment is average, the MMR vaccination rate for private schools is 3.98309 higher than charter schools. When enrollement is average, the MMR vaccination rate for public schools is 5.20283 higher than charter schools. The slope for enrollment on MMR vaccination rate is -0.03598 lower for private schools compared to charter schools. The slope for enrollment on MMR vaccination rate is -0.05596 lower for public schools compared to charter schools. This model explains approximately 2.8% of variability in MMR vaccination rate.</p>
+<pre class="r"><code>ggplot(measles,aes(enroll,mmr,color=type))+
+  geom_smooth(method=&quot;lm&quot;,alpha=0.2)+
+  xlab(&quot;Enrollment (persons)&quot;)+
+  ylab(&quot;MMR Vaccination Rate (%)&quot;)+
+  ggtitle(&quot;Regression Plot&quot;)</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>The regression line for private schools extend beyond 100% vaccination rate, which is impossible.</p>
+<pre class="r"><code>ggplot(measles,aes(enroll,mmr,color=type))+geom_point(alpha=0.2)</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>From the scatter plot we see that the variables are not linear in relationship.</p>
+<pre class="r"><code>bptest(fit)</code></pre>
+<pre><code>## 
+##  studentized Breusch-Pagan test
+## 
+## data:  fit
+## BP = 13.054, df = 5, p-value = 0.02288</code></pre>
+<p>Presence of heteroskedasticity.</p>
+<pre class="r"><code>ks.test(fit$residuals,&quot;pnorm&quot;,mean=0, sd(fit$residuals))</code></pre>
+<pre><code>## 
+##  One-sample Kolmogorov-Smirnov test
+## 
+## data:  fit$residuals
+## D = 0.25446, p-value &lt; 2.2e-16
+## alternative hypothesis: two-sided</code></pre>
+<p>True distribution <strong>NOT</strong> normal.</p>
+<pre class="r"><code>coeftest(fit, vcov = vcovHC(fit))</code></pre>
+<pre><code>## 
+## t test of coefficients:
+## 
+##                       Estimate Std. Error  t value  Pr(&gt;|t|)    
+## (Intercept)          89.526532   0.625572 143.1115 &lt; 2.2e-16 ***
+## enroll_c              0.059367   0.016786   3.5367 0.0004070 ***
+## typePrivate           3.983088   0.781259   5.0983 3.489e-07 ***
+## typePublic            5.202826   0.632485   8.2260 &lt; 2.2e-16 ***
+## enroll_c:typePrivate -0.035977   0.018088  -1.9890 0.0467331 *  
+## enroll_c:typePublic  -0.055964   0.016808  -3.3296 0.0008727 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>After using robust standard errors, the coefficients did not change but the standard errors both had increases (enroll_c,enroll_c:typePrivate,enroll_c:typePublic) and decreases (intercept,typePrivate,typePublic). Accordingly, the p-values also changed but the significance remained the same. There remains a significant effect on MMR vaccination rate by enrollement change and the difference in MMR vaccination rate (when controlled for enrollment) between charter and private and charter and public also remains significant. Interactions of enrollment with type of school also stayed significant.</p>
+<pre class="r"><code>samp_distn&lt;-replicate(5000, {
+boot_dat &lt;- sample_frac(measles1, replace=T) 
+fit &lt;- lm(mmr~enroll_c*type, data=boot_dat) 
+coef(fit) 
+})
+samp_distn%&gt;%t%&gt;%as.data.frame%&gt;%summarize_all(sd)</code></pre>
+<pre><code>##   (Intercept)   enroll_c typePrivate typePublic enroll_c:typePrivate
+## 1   0.6235703 0.01689133     0.78286  0.6293631           0.01847992
+##   enroll_c:typePublic
+## 1          0.01689916</code></pre>
+<pre class="r"><code>samp_distn%&gt;%t%&gt;%as.data.frame%&gt;%gather%&gt;%group_by(key)%&gt;%
+  summarize(lower=quantile(value,0.025),upper=quantile(value,0.975))</code></pre>
+<pre><code>## # A tibble: 6 x 3
+##   key                    lower     upper
+##   &lt;chr&gt;                  &lt;dbl&gt;     &lt;dbl&gt;
+## 1 (Intercept)          88.3    90.8     
+## 2 enroll_c              0.0285  0.0942  
+## 3 enroll_c:typePrivate -0.0725  0.000915
+## 4 enroll_c:typePublic  -0.0908 -0.0251  
+## 5 typePrivate           2.58    5.69    
+## 6 typePublic            3.96    6.45</code></pre>
+<p>The bootstrapped SEs are very close and similar to the robust SEs in values, and just like robust SEs, there are increases (enroll_c,enroll_c:typePrivate,enroll_c:typePublic) and decreases (intercept,typePrivate,typePublic) from the original SEs.</p>
+<p>None of the 95% confidence intervals include 0 between the lower and upper bounds, meaning that all the effects and interactions are significant, which did not change between the other models (original and robust SE).</p>
+<pre class="r"><code>measles1$mmr_c&lt;-measles$mmr-mean(measles$mmr)
+fit1&lt;-glm(y~mmr_c+enroll_c+xmed_c, data=measles1, family=&quot;binomial&quot;)
+summary(fit1)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = y ~ mmr_c + enroll_c + xmed_c, family = &quot;binomial&quot;, 
+##     data = measles1)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -7.7349   0.0525   0.2250   0.4816   1.7429  
+## 
+## Coefficients:
+##              Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  4.255572   0.124289  34.239  &lt; 2e-16 ***
+## mmr_c       -0.017924   0.006127  -2.926  0.00344 ** 
+## enroll_c     0.057206   0.002132  26.837  &lt; 2e-16 ***
+## xmed_c      -0.048188   0.011212  -4.298 1.72e-05 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 5507.0  on 6243  degrees of freedom
+## Residual deviance: 3776.6  on 6240  degrees of freedom
+##   (3958 observations deleted due to missingness)
+## AIC: 3784.6
+## 
+## Number of Fisher Scoring iterations: 25</code></pre>
+<pre class="r"><code>exp(coef(fit1))</code></pre>
+<pre><code>## (Intercept)       mmr_c    enroll_c      xmed_c 
+##  70.4971125   0.9822358   1.0588744   0.9529549</code></pre>
+<p>The odds of predicting public school when enrollment, MMR vaccination rate, and medical exemption rate are all average is 70.4971125. Controlling for enrollment and medical exemption rate, for every additional percentage in MMR vaccination rate, the odds of predicting public school increases by a factor of 0.9822358. Controlling for MMR vaccination rate and medical exemption rate, for every additional enrollment, the odds of predicting public school increases by a factor of 1.0588744. Controlling for MMR vaccinatio rate and MMR vaccination rate, for every additional percentage in medical expemtion, the odds of predicting public school increases by a factor of 0.9529549.</p>
+<pre class="r"><code>measles1&lt;-measles1%&gt;%na.omit%&gt;%mutate(prob=predict(fit1, type=&quot;response&quot;),
+                          prediction=ifelse(prob&gt;0.5,1,0))
+table(predict=as.numeric(measles1$prob&gt;0.5), truth=measles1$y)%&gt;%
+  addmargins</code></pre>
+<pre><code>##        truth
+## predict    0    1  Sum
+##     0    450  225  675
+##     1    554 5015 5569
+##     Sum 1004 5240 6244</code></pre>
+<pre class="r"><code>#Accuracy
+(450+5015)/6244</code></pre>
+<pre><code>## [1] 0.8752402</code></pre>
+<pre class="r"><code>#Sensitivity
+5015/5240</code></pre>
+<pre><code>## [1] 0.9570611</code></pre>
+<pre class="r"><code>#Specificity
+450/1004</code></pre>
+<pre><code>## [1] 0.4482072</code></pre>
+<pre class="r"><code>#PPV
+5015/5569</code></pre>
+<pre><code>## [1] 0.9005207</code></pre>
+<p>The accuracy or proportion of correctly predicted cases is 0.8752402, which is pretty high. The sensitivity or true positive rate (TPR) is 0.9570611, the proportion of public schools correctly classified as public schools.This is really high. The specificity or true negative rate (TNR) is 0.4482072, the proportion of non-public schools (charter, private) correctly classified as non-public schools. This is relatively low. The precision or positive predictive value (PPV) is 0.9005207, the proportion of actual public schools that were classified/predicted as public schools. This is pretty high.</p>
+<pre class="r"><code>p&lt;-seq(0,1,by=.1)
+odds&lt;-function(p)p/(1-p)
+logit&lt;-function(p)log(odds(p))
+fit2&lt;-glm(y~mmr_c+enroll_c+xmed_c, data=measles1,
+          family=binomial(link=&quot;logit&quot;))
+measles1$Type&lt;-ifelse(measles1$y==1,&quot;Public&quot;,&quot;Non-Public&quot;)
+measles1$logit&lt;-predict(fit2)
+ggplot(measles1,aes(logit, fill=Type))+geom_density(alpha=.3)+
+  geom_vline(xintercept=0,lty=2)</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>classify&lt;-measles1%&gt;%transmute(prob,prediction,truth=y)
+ROCplot&lt;-ggplot(classify)+geom_roc(aes(d=truth,m=prob), n.cuts=0)
+ROCplot</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-14-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>calc_auc(ROCplot)</code></pre>
+<pre><code>##   PANEL group      AUC
+## 1     1    -1 0.888229</code></pre>
+<p>The calculated AUC (area under curve) is 0.888229, which is good (0.8-0.9). This means that the probability that a randomly selected public school has a higher predicted probability than a randomly selected non-public school is 0.888229.</p>
+<pre class="r"><code>class_diag&lt;-function(probs,truth){
+  tab&lt;-table(factor(probs&gt;.5,levels=c(&quot;FALSE&quot;,&quot;TRUE&quot;)),truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+  if(is.numeric(truth)==FALSE &amp; is.logical(truth)==FALSE) truth&lt;-as.numeric(truth)-1
+  #CALCULATE EXACT AUC
+  ord&lt;-order(probs, decreasing=TRUE)
+  probs &lt;- probs[ord]; truth &lt;- truth[ord]
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  dup&lt;-c(probs[-1]&gt;=probs[-length(probs)], FALSE)
+  TPR&lt;-c(0,TPR[!dup],1); FPR&lt;-c(0,FPR[!dup],1)
+  n &lt;- length(TPR)
+  auc&lt;- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+  data.frame(acc,sens,spec,ppv,auc)
+}
+
+set.seed(1234)
+k=10
+data1&lt;-measles1[sample(nrow(measles1)),] 
+folds&lt;-cut(seq(1:nrow(measles1)),breaks=k,labels=F) 
+diags&lt;-NULL
+for(i in 1:k){        
+  train&lt;-data1[folds!=i,] 
+  test&lt;-data1[folds==i,]  
+  truth&lt;-test$y
+  fit&lt;-glm(y~mmr_c+enroll_c+xmed_c, data=train, family=&quot;binomial&quot;)
+  probs&lt;- predict(fit,newdata = test,type=&quot;response&quot;)
+  diags&lt;-rbind(diags,class_diag(probs,truth)) 
+}
+summarize_all(diags,mean)</code></pre>
+<pre><code>##         acc      sens      spec       ppv       auc
+## 1 0.8761959 0.9563054 0.4575773 0.9020525 0.8876033</code></pre>
+<p>The accuracy is 0.8761959, sensitivity is 0.9563054, specificity is 0.4575773, and PPV is 0.9020525. These are all very similar to the values from the original logistic regression model (fit1). The AUC is 0.8876033, which is similar to the calculated AUC from the ROCplot.</p>
+<pre class="r"><code>measles1&lt;-measles1%&gt;%select(state,mmr,xmed_c,enroll_c,type)
+set.seed(1234)
+k=10
+data1&lt;-measles1[sample(nrow(measles1)),] 
+folds&lt;-cut(seq(1:nrow(measles1)),breaks=k,labels=F) 
+diags&lt;-NULL 
+
+for(i in 1:k){
+train&lt;-data1[folds!=i,] 
+test&lt;-data1[folds==i,]
+fit&lt;-lm(mmr~.,data=train) 
+yhat&lt;-predict(fit,newdata=test)
+diags&lt;-mean((test$mmr-yhat)^2) 
+}
+summary(fit)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = mmr ~ ., data = train)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -96.858   0.590   0.918   1.375  28.489 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)     88.593519   1.373954  64.481  &lt; 2e-16 ***
+## stateCalifornia  4.121325   0.677961   6.079 1.29e-09 ***
+## stateColorado    1.183560   3.446832   0.343   0.7313    
+## stateOhio        0.556375   0.702198   0.792   0.4282    
+## stateUtah        6.699782   1.234726   5.426 6.00e-08 ***
+## xmed_c          -1.148171   0.027124 -42.330  &lt; 2e-16 ***
+## enroll_c        -0.012963   0.001672  -7.755 1.04e-14 ***
+## typePrivate      2.641684   1.549399   1.705   0.0883 .  
+## typePublic       2.600122   1.527835   1.702   0.0888 .  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 6.727 on 5610 degrees of freedom
+## Multiple R-squared:  0.3049, Adjusted R-squared:  0.3039 
+## F-statistic: 307.6 on 8 and 5610 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p>10-fold CV without LASSO for continuous response variable, mmr. Residual standard error (RMSE) is 6.727.</p>
+<pre class="r"><code>set.seed(1234)
+y&lt;-as.matrix(measles1$mmr)
+x&lt;-model.matrix(mmr~., data=measles)[,-1]
+cv.lasso1&lt;-cv.glmnet(x,y)
+lasso1&lt;-glmnet(x,y,lambda=cv.lasso1$lambda.1se)
+coef(lasso1)</code></pre>
+<pre><code>## 10 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                         s0
+## (Intercept)     96.6620655
+## stateCalifornia  0.2614825
+## stateColorado    .        
+## stateOhio        .        
+## stateUtah        .        
+## typePrivate      .        
+## typePublic       .        
+## enroll           .        
+## xmed            -0.6530055
+## y                .</code></pre>
+<p>Only California and medical exemption are retained after LASSO.</p>
+<pre class="r"><code>measles2&lt;-measles1%&gt;%
+  mutate(California=ifelse(state==&quot;California&quot;,1,0))
+set.seed(1234)
+k=10
+data1&lt;-measles2[sample(nrow(measles2)),]
+folds&lt;-cut(seq(1:nrow(measles2)),breaks=k,labels=F)  
+diags&lt;-NULL 
+
+for(i in 1:k){
+train&lt;-data1[folds!=i,] 
+test&lt;-data1[folds==i,]
+fit&lt;-lm(mmr~California+xmed_c,data=train) 
+yhat&lt;-predict(fit,newdata=test)
+diags&lt;-mean((test$mmr-yhat)^2) 
+}
+summary(fit)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = mmr ~ California + xmed_c, data = train)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -97.079   0.921   0.999   1.233  26.724 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 91.90081    0.18378  500.06   &lt;2e-16 ***
+## California   3.72584    0.21141   17.62   &lt;2e-16 ***
+## xmed_c      -1.07785    0.02472  -43.60   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 6.765 on 5616 degrees of freedom
+## Multiple R-squared:  0.2962, Adjusted R-squared:  0.296 
+## F-statistic:  1182 on 2 and 5616 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p>10-fold CV LASSO for continuous response variable, mmr. Residual standard error (RMSE) is 6.765. Compared to the RMSE from the model without LASSO, the RMSE for the model with LASSO is actually larger but not by much. This means that both model’s fit is about the same.</p>
+</div>

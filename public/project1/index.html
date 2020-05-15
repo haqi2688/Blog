@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Yu (Haity) Qin" />
+    <meta name="description" content="Personal blog">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
+    <title>Corruption and Welfare</title>
+    <meta name="generator" content="Hugo 0.70.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="/blog/">BLOG</a></li>
+        
+        <li><a href="/projects/">PROJECTS</a></li>
+        
+        <li><a href="/cv.pdf">CV</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="/project1/">Corruption and Welfare</a></strong>
+          </h3>
+        </div>
+        <div class="blog-title">
+          <h4>
+          March 15, 2020
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
+
+
+<div id="yu-qin-yq895" class="section level2">
+<h2>Yu Qin yq895</h2>
+<p>This is a document exploring the various identification indices of countries, with a particular emphasis on how corruption is related to each index. Each dataset represents an index with the value, year, and country. Corruption perceptions index (<strong>CPI</strong>) is determined by each country’s pereived levels of corruption in the public sector, taken from surveys and assessments. The scale goes from 0-100 and the higher the CPI, the less corrupt. Human development index (<strong>HDI</strong>) is a measurement of a country’s development and is a composit of life expectancy, education, and per capita income. The scale goes from 0-1 and the higher the HDI, the more developed. Gross domestic product per capita (<strong>GDP</strong>, in USD) is a monetary measurment of the market value of a country’s production (goods and services) divided by the population. This index is reflective of the national economy. The GINI index (<strong>GINI</strong>) is used to measure a nation’s inequality based on wealth distribution. A value of 100 would mean perfect inequality while 0 would mean total equality. Finally, the freedom index (<strong>FI</strong>) measures a country’s civil freedom and is an average of political rights and civil liberties. The lower the FI the more free a country is. Data was obtained from gapminder.org and worldbank.org.</p>
+<p>These indicies are interesting to me because I believe that a nation’s overall growth and welfare is dependent on a noncorrupt government and more civil freedom. I want to see if that is represented in actual data. I suspect that countries which score high on CPI (less corrupt) will also have a high GDP, low FI (more free), and a low GINI index.</p>
+<pre class="r"><code>fi&lt;-read.csv(&quot;fi.csv&quot;)
+cpi&lt;-read.csv(&quot;cpi.csv&quot;)
+gdp&lt;-read.csv(&quot;gdp.csv&quot;)
+hdi&lt;-read.csv(&quot;hdi.csv&quot;)
+gini&lt;-read.csv(&quot;gini.csv&quot;)
+gdp&lt;-gdp%&gt;%
+  pivot_longer(2:59,names_to=&quot;year&quot;, values_to=&quot;GDP&quot;)
+cpi&lt;-cpi%&gt;%
+  pivot_longer(2:7,names_to=&quot;year&quot;, values_to=&quot;CPI&quot;)
+gini&lt;-gini%&gt;%
+  pivot_longer(2:242,names_to=&quot;year&quot;, values_to=&quot;GINI&quot;)
+hdi&lt;-hdi%&gt;%
+  pivot_longer(2:27,names_to=&quot;year&quot;, values_to=&quot;HDI&quot;)
+fi&lt;-fi%&gt;%
+  pivot_longer(2:48,names_to=&quot;year&quot;, values_to=&quot;FI&quot;)
+master&lt;-gdp%&gt;%full_join(gini)%&gt;%full_join(fi)%&gt;%
+  full_join(hdi)%&gt;%right_join(cpi)
+master&lt;-master%&gt;%separate(year, into=c(&quot;x&quot;,&quot;year&quot;),sep=&quot;X&quot;)
+master&lt;-master%&gt;%select(-x)
+head(master)</code></pre>
+<pre><code>## # A tibble: 6 x 7
+##   country     year    GDP  GINI    FI    HDI   CPI
+##   &lt;chr&gt;       &lt;chr&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt;
+## 1 Afghanistan 2012    630  36.8   6    0.47      8
+## 2 Afghanistan 2013    634  36.8   6    0.476     8
+## 3 Afghanistan 2014    630  36.8   6    0.479    12
+## 4 Afghanistan 2015    620  36.8   6    0.479    11
+## 5 Afghanistan 2016    618  36.8   6   NA        15
+## 6 Afghanistan 2017    618  36.8   5.5 NA        15</code></pre>
+<p>Each data was pivoted longer so each year was a row. This allowed me to join by year and country. Full join was performed on all datasets except “cpi” to preserve their data before right joining to “cpi”, which is the primary index I wanted to look at so I needed to preserve all of it. All other datasets came with variable years, spanning from 1800’s to 2018, so after the join “fi” lost 8009 rows, “gdp” lost 9958 rows, “gini” lost 45933 rows, “hdi” lost 3800 rows, and “cpi” did not lose any rows. These lost rows were just data that had years of which were not needed.</p>
+<pre class="r"><code>master%&gt;%summarize(num_diff_countries=n_distinct(country), num_years=n_distinct(year))</code></pre>
+<pre><code>## # A tibble: 1 x 2
+##   num_diff_countries num_years
+##                &lt;int&gt;     &lt;int&gt;
+## 1                177         6</code></pre>
+<pre class="r"><code>master%&gt;%summarize(first_year=min(year),last_year=max(year))</code></pre>
+<pre><code>## # A tibble: 1 x 2
+##   first_year last_year
+##   &lt;chr&gt;      &lt;chr&gt;    
+## 1 2012       2017</code></pre>
+<p>I first explored the number of countries with any avaliable data, which was 177 (there are currently 195 countries in the world).The years range from 2012-2017.</p>
+<pre class="r"><code>master1&lt;-master%&gt;%group_by(country)%&gt;% 
+  mutate(CPI_change=CPI-lag(CPI, default=CPI[1]))
+head(master1)</code></pre>
+<pre><code>## # A tibble: 6 x 8
+## # Groups:   country [1]
+##   country     year    GDP  GINI    FI    HDI   CPI CPI_change
+##   &lt;chr&gt;       &lt;chr&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt;      &lt;int&gt;
+## 1 Afghanistan 2012    630  36.8   6    0.47      8          0
+## 2 Afghanistan 2013    634  36.8   6    0.476     8          0
+## 3 Afghanistan 2014    630  36.8   6    0.479    12          4
+## 4 Afghanistan 2015    620  36.8   6    0.479    11         -1
+## 5 Afghanistan 2016    618  36.8   6   NA        15          4
+## 6 Afghanistan 2017    618  36.8   5.5 NA        15          0</code></pre>
+<pre class="r"><code>master1%&gt;%group_by(country,year)%&gt;%summarize(CPI_change=min(CPI_change))%&gt;%
+  arrange(CPI_change)%&gt;%head()%&gt;%kable() %&gt;%
+  kable_styling(&quot;striped&quot;, full_width = F) %&gt;%
+  row_spec(1, bold = T, color = &quot;black&quot;, background = &quot;#FFCC00&quot;)</code></pre>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+country
+</th>
+<th style="text-align:left;">
+year
+</th>
+<th style="text-align:right;">
+CPI_change
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;font-weight: bold;color: black !important;background-color: #FFCC00 !important;">
+Qatar
+</td>
+<td style="text-align:left;font-weight: bold;color: black !important;background-color: #FFCC00 !important;">
+2016
+</td>
+<td style="text-align:right;font-weight: bold;color: black !important;background-color: #FFCC00 !important;">
+-10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Syria
+</td>
+<td style="text-align:left;">
+2013
+</td>
+<td style="text-align:right;">
+-9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bahrain
+</td>
+<td style="text-align:left;">
+2016
+</td>
+<td style="text-align:right;">
+-8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kuwait
+</td>
+<td style="text-align:left;">
+2016
+</td>
+<td style="text-align:right;">
+-8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bahrain
+</td>
+<td style="text-align:left;">
+2017
+</td>
+<td style="text-align:right;">
+-7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cyprus
+</td>
+<td style="text-align:left;">
+2016
+</td>
+<td style="text-align:right;">
+-6
+</td>
+</tr>
+</tbody>
+</table>
+<p>I created a new variable that defined the change in CPI for each year from the last year avaliable. From this, I found that Qatar’s CPI decreased (became more corrupt) by 10 points between 2015 and 2016; this was the largest decrease in CPI out of all the countries.</p>
+<pre class="r"><code>master%&gt;%group_by(FI,year)%&gt;%summarize(countries=n_distinct(country))%&gt;% 
+  pivot_wider(names_from=&quot;year&quot;, values_from=&quot;countries&quot;)%&gt;%kable() %&gt;%
+  kable_styling(&quot;striped&quot;, full_width = F) %&gt;%
+  row_spec(1, bold = T, color = &quot;white&quot;, background = &quot;#669933&quot;)</code></pre>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+FI
+</th>
+<th style="text-align:right;">
+2012
+</th>
+<th style="text-align:right;">
+2013
+</th>
+<th style="text-align:right;">
+2014
+</th>
+<th style="text-align:right;">
+2015
+</th>
+<th style="text-align:right;">
+2016
+</th>
+<th style="text-align:right;">
+2017
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #669933 !important;">
+1.0
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #669933 !important;">
+37
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #669933 !important;">
+39
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #669933 !important;">
+39
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #669933 !important;">
+39
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #669933 !important;">
+37
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #669933 !important;">
+36
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1.5
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2.0
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+17
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2.5
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+11
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3.0
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+19
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3.5
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4.0
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+14
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4.5
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5.0
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+11
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5.5
+</td>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+13
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6.0
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6.5
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+15
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+7.0
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+11
+</td>
+</tr>
+</tbody>
+</table>
+<p>I then looked at the number of countries for each year in each FI and found that quite a bit of countries have the lowest FI, representing “most free.”</p>
+<pre class="r"><code>master%&gt;%group_by(country)%&gt;%summarize(Mean_HDI=mean(HDI, na.rm=T),
+  SD_HDI=sd(HDI, na.rm=T),
+  Max_HDI=max(HDI, na.rm=T),
+  Min_HDI=min(HDI, na.rm=T))%&gt;%filter(Mean_HDI&gt;0.90)%&gt;%
+  arrange(desc(Mean_HDI))%&gt;%
+  kable() %&gt;%kable_styling(&quot;striped&quot;, full_width = F) %&gt;%
+  row_spec(c(1,2,4,5,7,9,11,13,14), 
+           bold = T, color = &quot;white&quot;, background = &quot;#0099CC&quot;)%&gt;%
+  row_spec(c(3,12), 
+           bold = T, color = &quot;white&quot;, background = &quot;#99CC00&quot;)%&gt;%
+  row_spec(c(8,10), 
+           bold = T, color = &quot;white&quot;, background = &quot;#33CCCC&quot;)%&gt;%
+  row_spec(c(6), 
+           bold = T, color = &quot;white&quot;, background = &quot;#CC99FF&quot;)</code></pre>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+country
+</th>
+<th style="text-align:right;">
+Mean_HDI
+</th>
+<th style="text-align:right;">
+SD_HDI
+</th>
+<th style="text-align:right;">
+Max_HDI
+</th>
+<th style="text-align:right;">
+Min_HDI
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+Norway
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.94600
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.0031623
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.949
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.942
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+Switzerland
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.93675
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.0022174
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.939
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.934
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #99CC00 !important;">
+Australia
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #99CC00 !important;">
+0.93625
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #99CC00 !important;">
+0.0025000
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #99CC00 !important;">
+0.939
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #99CC00 !important;">
+0.933
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+Denmark
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.92450
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.0012910
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.926
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.923
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+Netherlands
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.92300
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.0008165
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.924
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.922
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #CC99FF !important;">
+Singapore
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #CC99FF !important;">
+0.92275
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #CC99FF !important;">
+0.0022174
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #CC99FF !important;">
+0.925
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #CC99FF !important;">
+0.920
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+Germany
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.92225
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.0033040
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.926
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.919
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #33CCCC !important;">
+United States
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #33CCCC !important;">
+0.91725
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #33CCCC !important;">
+0.0022174
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #33CCCC !important;">
+0.920
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #33CCCC !important;">
+0.915
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+Iceland
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.91550
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.0061914
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.921
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.907
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #33CCCC !important;">
+Canada
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #33CCCC !important;">
+0.91500
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #33CCCC !important;">
+0.0053541
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #33CCCC !important;">
+0.920
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #33CCCC !important;">
+0.909
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+Ireland
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.91375
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.0096047
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.923
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.902
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #99CC00 !important;">
+New Zealand
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #99CC00 !important;">
+0.91150
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #99CC00 !important;">
+0.0031091
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #99CC00 !important;">
+0.915
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #99CC00 !important;">
+0.908
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+Sweden
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.90800
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.0039158
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.913
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.904
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+United Kingdom
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.90525
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.0048563
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.910
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #0099CC !important;">
+0.899
+</td>
+</tr>
+</tbody>
+</table>
+<p>14 countries have an average HDI higher than 0.9. We can see that Norway has the highest average HDI. 9 countries (blue) are European, 2 (green) are in the Australian continent, 2 (turquoise) in North America, and only 1 (purple) in Asia.</p>
+<pre class="r"><code>master%&gt;%group_by(country)%&gt;%
+  summarize(Mean_GDP=mean(GDP),Mean_GINI=mean(GINI),
+  Mean_FI=mean(FI),
+  Mean_HDI=mean(HDI, na.rm=T),
+  Mean_CPI=mean(CPI))%&gt;%
+  arrange(desc(Mean_GDP))%&gt;%head()%&gt;%kable() %&gt;%
+  kable_styling(&quot;striped&quot;, full_width = F)%&gt;%
+  row_spec(4, bold = T, color = &quot;white&quot;, background = &quot;#FF9933&quot;)</code></pre>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+country
+</th>
+<th style="text-align:right;">
+Mean_GDP
+</th>
+<th style="text-align:right;">
+Mean_GINI
+</th>
+<th style="text-align:right;">
+Mean_FI
+</th>
+<th style="text-align:right;">
+Mean_HDI
+</th>
+<th style="text-align:right;">
+Mean_CPI
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Luxembourg
+</td>
+<td style="text-align:right;">
+106333.33
+</td>
+<td style="text-align:right;">
+32.95000
+</td>
+<td style="text-align:right;">
+1.0
+</td>
+<td style="text-align:right;">
+0.89450
+</td>
+<td style="text-align:right;">
+81.66667
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Norway
+</td>
+<td style="text-align:right;">
+89683.33
+</td>
+<td style="text-align:right;">
+26.85000
+</td>
+<td style="text-align:right;">
+1.0
+</td>
+<td style="text-align:right;">
+0.94600
+</td>
+<td style="text-align:right;">
+85.83333
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Switzerland
+</td>
+<td style="text-align:right;">
+76133.33
+</td>
+<td style="text-align:right;">
+32.26667
+</td>
+<td style="text-align:right;">
+1.0
+</td>
+<td style="text-align:right;">
+0.93675
+</td>
+<td style="text-align:right;">
+85.66667
+</td>
+</tr>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #FF9933 !important;">
+Qatar
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #FF9933 !important;">
+67766.67
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #FF9933 !important;">
+40.00000
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #FF9933 !important;">
+5.5
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #FF9933 !important;">
+0.85200
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #FF9933 !important;">
+66.66667
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ireland
+</td>
+<td style="text-align:right;">
+60933.33
+</td>
+<td style="text-align:right;">
+32.28333
+</td>
+<td style="text-align:right;">
+1.0
+</td>
+<td style="text-align:right;">
+0.91375
+</td>
+<td style="text-align:right;">
+72.83333
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Denmark
+</td>
+<td style="text-align:right;">
+59833.33
+</td>
+<td style="text-align:right;">
+28.11667
+</td>
+<td style="text-align:right;">
+1.0
+</td>
+<td style="text-align:right;">
+0.92450
+</td>
+<td style="text-align:right;">
+90.33333
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>master%&gt;%group_by(country)%&gt;%
+  summarize(GDP_variance=var(GDP),GINI_variance=var(GINI),
+            FI_variance=var(FI),HDI_variance=var(HDI,na.rm=T),
+            CPI_variance=var(CPI))%&gt;%
+  arrange(desc(CPI_variance))%&gt;%head()%&gt;%kable() %&gt;%
+  kable_styling(&quot;striped&quot;, full_width = F)%&gt;%
+  row_spec(1, bold = T, color = &quot;white&quot;, background = &quot;#993333&quot;)</code></pre>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+country
+</th>
+<th style="text-align:right;">
+GDP_variance
+</th>
+<th style="text-align:right;">
+GINI_variance
+</th>
+<th style="text-align:right;">
+FI_variance
+</th>
+<th style="text-align:right;">
+HDI_variance
+</th>
+<th style="text-align:right;">
+CPI_variance
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;font-weight: bold;color: white !important;background-color: #993333 !important;">
+Belarus
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #993333 !important;">
+22706.67
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #993333 !important;">
+0.0226667
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #993333 !important;">
+0.0416667
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #993333 !important;">
+0.0000010
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #993333 !important;">
+36.30000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bahrain
+</td>
+<td style="text-align:right;">
+333666.67
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0666667
+</td>
+<td style="text-align:right;">
+0.0000163
+</td>
+<td style="text-align:right;">
+34.26667
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Myanmar
+</td>
+<td style="text-align:right;">
+20266.67
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.1416667
+</td>
+<td style="text-align:right;">
+0.0000476
+</td>
+<td style="text-align:right;">
+29.36667
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Syria
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0018682
+</td>
+<td style="text-align:right;">
+22.00000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Greece
+</td>
+<td style="text-align:right;">
+54666.67
+</td>
+<td style="text-align:right;">
+0.0586667
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000076
+</td>
+<td style="text-align:right;">
+18.56667
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Turkey
+</td>
+<td style="text-align:right;">
+966666.67
+</td>
+<td style="text-align:right;">
+0.5376667
+</td>
+<td style="text-align:right;">
+0.7000000
+</td>
+<td style="text-align:right;">
+0.0000327
+</td>
+<td style="text-align:right;">
+17.90000
+</td>
+</tr>
+</tbody>
+</table>
+<p>I calculated the average and variance for each country on each index, the top 6 based on GDP average and CPI average is listed. Notice that Qatar has the 4th highest GDP but scored higher on GINI and lower on CPI, meaning that it has more inequality and a more corrupt government out of the 6. Luxembourg has the highest GDP but not the highest HDI out of the 6. Belarus has the largest CPI variance, which means that its CPI flucuates the most from year to year.</p>
+<pre class="r"><code>master%&gt;%na.omit%&gt;%select(-country)%&gt;%group_by(year)%&gt;%
+  summarize_all(mean)%&gt;%kable()%&gt;%
+  kable_styling(&quot;striped&quot;, full_width = F)%&gt;%
+  column_spec(2, bold = T, color = &quot;white&quot;, background = &quot;#6666FF&quot;)</code></pre>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+year
+</th>
+<th style="text-align:right;">
+GDP
+</th>
+<th style="text-align:right;">
+GINI
+</th>
+<th style="text-align:right;">
+FI
+</th>
+<th style="text-align:right;">
+HDI
+</th>
+<th style="text-align:right;">
+CPI
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2012
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #6666FF !important;">
+13272.76
+</td>
+<td style="text-align:right;">
+38.88683
+</td>
+<td style="text-align:right;">
+3.383233
+</td>
+<td style="text-align:right;">
+0.6914132
+</td>
+<td style="text-align:right;">
+43.57485
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2013
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #6666FF !important;">
+13361.13
+</td>
+<td style="text-align:right;">
+38.84192
+</td>
+<td style="text-align:right;">
+3.365270
+</td>
+<td style="text-align:right;">
+0.6957665
+</td>
+<td style="text-align:right;">
+43.20958
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2014
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #6666FF !important;">
+13384.20
+</td>
+<td style="text-align:right;">
+38.77636
+</td>
+<td style="text-align:right;">
+3.375758
+</td>
+<td style="text-align:right;">
+0.6991939
+</td>
+<td style="text-align:right;">
+43.86667
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+2015
+</td>
+<td style="text-align:right;font-weight: bold;color: white !important;background-color: #6666FF !important;">
+13714.73
+</td>
+<td style="text-align:right;">
+38.48861
+</td>
+<td style="text-align:right;">
+3.439873
+</td>
+<td style="text-align:right;">
+0.7002152
+</td>
+<td style="text-align:right;">
+43.46835
+</td>
+</tr>
+</tbody>
+</table>
+<p>I calculated the average of all countries in each year (2012-2015) and found that the global average for each index except GDP did not really change much in the 4 year span, which is expected. GDP did increase, with the biggest increase from 2014-2015. If the world was one country, the HDI would put us at a medium to high category of development.</p>
+<pre class="r"><code>df&lt;-master%&gt;%mutate(logGDP=log10(GDP))%&gt;%na.omit%&gt;%select(-country,-year,-GDP)
+cor(df)</code></pre>
+<pre><code>##              GINI         FI        HDI        CPI     logGDP
+## GINI    1.0000000  0.1440793 -0.3605462 -0.2512390 -0.2657377
+## FI      0.1440793  1.0000000 -0.5393658 -0.6827803 -0.5294411
+## HDI    -0.3605462 -0.5393658  1.0000000  0.7171959  0.9410541
+## CPI    -0.2512390 -0.6827803  0.7171959  1.0000000  0.7647229
+## logGDP -0.2657377 -0.5294411  0.9410541  0.7647229  1.0000000</code></pre>
+<pre class="r"><code>tidycor&lt;-cor(df)%&gt;%as.data.frame%&gt;%
+  rownames_to_column%&gt;%
+  pivot_longer(-1,names_to=&quot;name&quot;,values_to=&quot;Correlation&quot;)
+tidycor%&gt;%ggplot(aes(rowname,name,fill=Correlation))+
+  geom_tile()+
+  scale_fill_gradient2(low=&quot;#FF99CC&quot;,mid=&quot;#FFFFCC&quot;,high=&quot;#003333&quot;)+ 
+  geom_text(aes(label=round(Correlation,2)),color = &quot;black&quot;, size = 4)+ 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+ 
+  coord_fixed()+xlab(&quot;&quot;)+ylab(&quot;&quot;)+labs(title=&quot;Correlation Matrix of Indices&quot;)</code></pre>
+<p><img src="/project1_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>There is strong positive correlation between GDP (logGDP) and HDI, which makes sense since HDI is partially calculated from a value dependent on per capita economy. Across the board, GINI index did not have much correlation with any of the other indices. FI has a moderate negative correlation with CPI, HDI, and GDP. CPI has moderately strong positive relationship with both HDI and GDP.</p>
+<pre class="r"><code>ggplot(master1, aes(CPI,GDP))+scale_y_log10()+
+  geom_point(aes(size=FI,color=country),alpha=0.4)+
+  guides(color=FALSE)+labs(title=&quot;Per Country CPI vs GDP from 2012-2017&quot;)+
+  facet_wrap(~year)+theme_gdocs()</code></pre>
+<p><img src="/project1_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Here, I plotted CPI against GDP (log10 scale). There appears to be a moderately strong positive correlation between CPI and GDP, which was noted before in the correlation matrix. This means that countries with higer CPI (less corrupt) is associated with a higher per capita GDP. The dots are colored by country and the larger the size of the dot, the higher the FI. Notice that more of the larger dots representing countries with less civil freedom are towards the bottom left of the chart, meaning lower GDP and a more corrupt government. Conversely, the countries with more civil freedom tend to have a higher CPI (less corrupt) and higher GDP. The general trend does not change from year to year.</p>
+<pre class="r"><code>master1%&gt;%group_by(country)%&gt;%
+  summarize(GINI=mean(GINI, na.rm = T),HDI=mean(HDI, na.rm = T),
+            CPI=mean(CPI, na.rm = T))%&gt;%ggplot(aes(HDI,CPI))+
+  geom_point(aes(size=GINI,color=country),alpha=0.8)+
+  geom_smooth(method=&quot;loess&quot;,color=&quot;black&quot;,size=0.5, alpha=0.2)+
+  guides(color=FALSE)+labs(title=&quot;Per Country Average HDI vs CPI&quot;)+
+scale_color_viridis(discrete = T)+
+  scale_x_continuous(breaks=c(0.4,0.5,0.6,0.7,0.8,0.9))+
+  theme_igray()</code></pre>
+<p><img src="/project1_files/figure-html/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>I plotted HDI against CPI and colored by country and sized by GINI index. The correlation matrix gave a moderately strong positive correlation between CPI and HDI which can be seen on this graph. I used a LOESS regression and found a more exponential relationship between the two indices. GINI, as shown by the variable size of dots scattered across the graph, does not seem to have any meaningful relationship overall with either indices. However, a small cluster (upper right) with high HDI and high CPI seem to have generally smaller GINI values (more equality).</p>
+<pre class="r"><code>mastercat&lt;-master%&gt;%group_by(country)%&gt;%
+  summarize(GDP=mean(GDP, na.rm = T),
+            HDI=mean(HDI, na.rm = T),
+            CPI=mean(CPI, na.rm = T),
+            GINI=mean(GINI,na.rm=T),
+            FI=mean(FI,na.rm=T))%&gt;%mutate(category=ifelse(HDI&gt;0.8&amp;HDI&lt; 1 ,&quot;Very High&quot;,
+                                   ifelse(HDI&gt;0.7&amp;HDI&lt;0.8, &quot;High&quot;,
+                                   ifelse(HDI&gt;0.55&amp;HDI&lt;0.7, &quot;Medium&quot;,
+                                   ifelse(HDI&gt;0.34&amp;HDI&lt;0.55, &quot;Low&quot;,&quot;&quot;)))))
+masterlog&lt;-mastercat%&gt;%na.omit%&gt;%mutate(logGDP=log10(GDP))%&gt;%select(-GDP)
+pam_dat&lt;-masterlog%&gt;%select(-country,-category)
+sil_width&lt;-vector()
+for(i in 2:10){
+pam_fit &lt;- pam(pam_dat, k = i)
+sil_width[i] &lt;- pam_fit$silinfo$avg.width
+}
+ggplot()+geom_line(aes(x=1:10,y=sil_width))+scale_x_continuous(name=&quot;k&quot;,breaks=1:10)</code></pre>
+<p><img src="/project1_files/figure-html/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Using the silhouette width, I find that the best approach is to use 2 clusters.</p>
+<pre class="r"><code>masterclust&lt;-masterlog%&gt;%pam(k=2)
+pam_dat%&gt;%mutate(cluster=as.factor(masterclust$clustering))%&gt;%
+  ggpairs(columns=1:5, aes(color=cluster, alpha=0.6))</code></pre>
+<p><img src="/project1_files/figure-html/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>masterclust$silinfo$avg.width</code></pre>
+<pre><code>## [1] 0.5524852</code></pre>
+<p>The final clustering seems to split the data between two ends of CPI value, one where CPI&lt;50 and one with CPI&gt;50. The amount of datapoints in cluster one is a lot less than cluster 2, which contains most of the countries. Cluster 1 has the lowest FI (more free), highest CPI (less corrupt), highest HDI, and highest GDP. They most likely represent the most developed countries. Conversely, cluster 2 has the highest FI (less free), lowest CPI (more corrupt), lowest HDI, and lowest GDP. They most likely represent the group of less developed countries. According to the clustering’s average sihouette width, the clusters are reasonable for the data. There may be some outliers present that skewed clusters.</p>
+<pre class="r"><code>masterlog1&lt;-masterlog%&gt;%mutate(cluster=as.factor(masterclust$clustering))
+masterlog1%&gt;%group_by(category)%&gt;%
+  count(cluster)%&gt;%
+  pivot_wider(names_from=&quot;cluster&quot;,values_from=&quot;n&quot;,values_fill = list(&#39;n&#39;=0))%&gt;%
+  arrange(match(category, c(&quot;Low&quot;, &quot;Medium&quot;, &quot;High&quot;,&quot;Very High&quot;)))</code></pre>
+<pre><code>## # A tibble: 4 x 3
+## # Groups:   category [4]
+##   category    `1`   `2`
+##   &lt;chr&gt;     &lt;int&gt; &lt;int&gt;
+## 1 Low          40     0
+## 2 Medium       34     3
+## 3 High         37    11
+## 4 Very High     9    37</code></pre>
+<pre class="r"><code>masterlog1%&gt;%na.omit%&gt;%group_by(category)%&gt;%
+  summarize(countries=n_distinct(country))%&gt;%
+  arrange(match(category, c(&quot;Low&quot;, &quot;Medium&quot;, &quot;High&quot;,&quot;Very High&quot;)))</code></pre>
+<pre><code>## # A tibble: 4 x 2
+##   category  countries
+##   &lt;chr&gt;         &lt;int&gt;
+## 1 Low              40
+## 2 Medium           37
+## 3 High             48
+## 4 Very High        46</code></pre>
+<pre class="r"><code>mastercpi&lt;-masterlog1%&gt;%mutate(category=ifelse(CPI&gt;=50 ,&quot;CPI&gt;50&quot;,&quot;CPI&lt;50&quot;))
+mastercpi%&gt;%group_by(category)%&gt;%
+  count(cluster)%&gt;%
+  pivot_wider(names_from=&quot;cluster&quot;,values_from=&quot;n&quot;,values_fill = list(&#39;n&#39;=0))</code></pre>
+<pre><code>## # A tibble: 2 x 3
+## # Groups:   category [2]
+##   category   `1`   `2`
+##   &lt;chr&gt;    &lt;int&gt; &lt;int&gt;
+## 1 CPI&lt;50     118     0
+## 2 CPI&gt;50       2    51</code></pre>
+<pre class="r"><code>mastercpi%&gt;%group_by(category)%&gt;%summarize(countries=n_distinct(country))                                              </code></pre>
+<pre><code>## # A tibble: 2 x 2
+##   category countries
+##   &lt;chr&gt;        &lt;int&gt;
+## 1 CPI&lt;50         118
+## 2 CPI&gt;50          53</code></pre>
+<p>I initially expected the clustering to be 4, based on the 4 categories of development grouped by the United Nations. With 2 clusters we should expect low and medium countries to fall into one cluster and high and very high countries to fall into another. The 2 clusters grouped the low and medium developed countries very well into cluster 1 but grouped about 3/4th of the high developed countries into cluster 1 as well. About 1/5th of the very high countries were also grouped into cluster 1. This could be due to factoring in of the other indices and some outliers that were present. As seen in the graphic, the clusters separated into CPI&lt;50 and CPI&gt;50 groups, which from the counts, was fairly grouped with cluster 1 for CPI&lt;50 and cluster 2 for CPI&gt;50.</p>
+</div>
+
+              <hr>
+              <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div>
+            </div>
+          </div>
+          <hr>
+        <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+        </div>
+      </div>
+      
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/js/docs.min.js"></script>
+<script src="/js/main.js"></script>
+
+<script src="/js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

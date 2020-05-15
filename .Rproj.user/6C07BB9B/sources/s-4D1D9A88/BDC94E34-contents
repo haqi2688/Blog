@@ -1,0 +1,25 @@
+---
+title: 'Welcome to my page '
+author: ''
+date: '2020-05-14'
+slug: welcome-to-my-page
+categories: []
+tags: []
+description: ''
+---
+![](/blog/2020-05-14-welcome-to-my-page_files/Picture1.png)
+The picture above is immunofluorescence of laser microirradiated cells. The lines of red are where the specific damage occured and lines of green are where the protein is recruited. It really has nothing to do with the codes below, but it is cool to look at. 
+
+Below, I am going to show you how to cut fragments from sequences using regex. The sequence below is for the protein ZNF219 (which if you go to my resume you'll see that it's the protein I'm working on), and I am trying to use EcoRI, which cuts at G/AATTC.
+
+```{python}
+```
+
+```{R}
+library(reticulate)
+#link it to R codes 
+#R codes codes codes yughhhh
+
+```
+
+
