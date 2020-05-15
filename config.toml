@@ -11,7 +11,7 @@ theme = "hugo-sustain"
   post = "/:year/:month/:day/:slug"
 
 [params]
-  avatar = "Asset 11.JPEG"
+  avatar = "Asset4.JPEG"
   author = "Yu (Haity) Qin"
   description = "Personal blog"
 

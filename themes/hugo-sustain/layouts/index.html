@@ -5,9 +5,9 @@
       <section id="about">
         <div class="container">
         <div class="avatar">
-          <img class="img-circle" src="{{ .Site.BaseURL }}img/{{ .Site.Params.avatar }}" alt="It me."height=200px width=200px>
+          <img class="img-circle" src="{{ .Site.BaseURL }}img/{{ .Site.Params.avatar }}" alt="It me."height=150px width=150px >
         </div>
-        <h3>Hi! I'm <strong>{{ .Site.Params.author }}</strong>. I have a bachelors in Human Biology and Neuroscience from the University of Texas at Austin. My expertise is with proteins involved in the DNA damage response.</h3>
+        <h3>Hi! I'm <a href="{{ .Site.BaseURL }}about/"><strong>{{ .Site.Params.author }}</strong></a>. I have a bachelors in Human Biology and Neuroscience from the University of Texas at Austin. My expertise is with proteins involved in the DNA damage response.</h3>
         <h3>I love <a href="{{ .Site.BaseURL }}about/">pandas</a>.</h3>
         <h3>Have a look at some of my working <a href="{{ .Site.BaseURL }}projects/"> projects</a>.</h3>
         <h3>For more check out my academic &amp; professional <a href="CV.pdf" target="_blank">CV</a>.</h3>
