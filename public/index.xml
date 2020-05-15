@@ -40,7 +40,7 @@ I am going to show you how to cut fragments from sequences using regex in python
       <pubDate>Fri, 01 May 2020 00:00:00 +0000</pubDate>
       
       <guid>/project2/</guid>
-      <description>Yu Qin This is a document exploring vaccination in schools, with an interest to see if there is a difference in measles vaccination rates between public and private schools. The dataset includes the US state the school is located in (state), the category of school (type), private or public, the MMR (measles, mumps, rubella) vaccination rate for the school (mmr), enrollment number of the school (enroll), and medical vaccination exemption rate in the school (xmed).</description>
+      <description>This is a document exploring vaccination in schools, with an interest to see if there is a difference in measles vaccination rates between public and private schools. The dataset includes the US state the school is located in (state), the category of school (type), private or public, the MMR (measles, mumps, rubella) vaccination rate for the school (mmr), enrollment number of the school (enroll), and medical vaccination exemption rate in the school (xmed).</description>
     </item>
     
     <item>
@@ -49,7 +49,7 @@ I am going to show you how to cut fragments from sequences using regex in python
       <pubDate>Sun, 15 Mar 2020 00:00:00 +0000</pubDate>
       
       <guid>/project1/</guid>
-      <description>Yu Qin yq895 This is a document exploring the various identification indices of countries, with a particular emphasis on how corruption is related to each index. Each dataset represents an index with the value, year, and country. Corruption perceptions index (CPI) is determined by each country’s pereived levels of corruption in the public sector, taken from surveys and assessments. The scale goes from 0-100 and the higher the CPI, the less corrupt.</description>
+      <description>This is a document exploring the various identification indices of countries, with a particular emphasis on how corruption is related to each index. Each dataset represents an index with the value, year, and country. Corruption perceptions index (CPI) is determined by each country’s pereived levels of corruption in the public sector, taken from surveys and assessments. The scale goes from 0-100 and the higher the CPI, the less corrupt.</description>
     </item>
     
     <item>

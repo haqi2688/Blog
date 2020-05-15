@@ -7,8 +7,6 @@ output: pdf_document
 
 
 
-<div id="yu-qin" class="section level2">
-<h2>Yu Qin</h2>
 <p>This is a document exploring vaccination in schools, with an interest to see if there is a difference in measles vaccination rates between public and private schools. The dataset includes the US state the school is located in (<strong>state</strong>), the category of school (<strong>type</strong>), private or public, the MMR (measles, mumps, rubella) vaccination rate for the school (<strong>mmr</strong>), enrollment number of the school (<strong>enroll</strong>), and medical vaccination exemption rate in the school (<strong>xmed</strong>). Data was obtained from <a href="https://github.com/rfordatascience/tidytuesday" class="uri">https://github.com/rfordatascience/tidytuesday</a>, with original source from The Wallstreet Journal. The dataset, after removing unusable observations, contains 10202 observations. When all NA’s are removed, the dataset contains 6244 observations.</p>
 <p>I am interested in seeing if difference in policies between private, charter, and public schools will show in their MMR vaccination rates becuase the outbreak of measles typically center around schools. I suspect that public school may have better measles vaccination due to stricter government regulation.</p>
 <pre class="r"><code>measles&lt;-readr::read_csv(&#39;https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-25/measles.csv&#39;)
@@ -179,20 +177,20 @@ coef(fit)
 })
 samp_distn%&gt;%t%&gt;%as.data.frame%&gt;%summarize_all(sd)</code></pre>
 <pre><code>##   (Intercept)   enroll_c typePrivate typePublic enroll_c:typePrivate
-## 1   0.6235703 0.01689133     0.78286  0.6293631           0.01847992
+## 1   0.6315709 0.01685449   0.8003873  0.6376363           0.01833802
 ##   enroll_c:typePublic
-## 1          0.01689916</code></pre>
+## 1          0.01687885</code></pre>
 <pre class="r"><code>samp_distn%&gt;%t%&gt;%as.data.frame%&gt;%gather%&gt;%group_by(key)%&gt;%
   summarize(lower=quantile(value,0.025),upper=quantile(value,0.975))</code></pre>
 <pre><code>## # A tibble: 6 x 3
-##   key                    lower     upper
-##   &lt;chr&gt;                  &lt;dbl&gt;     &lt;dbl&gt;
-## 1 (Intercept)          88.3    90.8     
-## 2 enroll_c              0.0285  0.0942  
-## 3 enroll_c:typePrivate -0.0725  0.000915
-## 4 enroll_c:typePublic  -0.0908 -0.0251  
-## 5 typePrivate           2.58    5.69    
-## 6 typePublic            3.96    6.45</code></pre>
+##   key                    lower      upper
+##   &lt;chr&gt;                  &lt;dbl&gt;      &lt;dbl&gt;
+## 1 (Intercept)          88.3    90.8      
+## 2 enroll_c              0.0282  0.0951   
+## 3 enroll_c:typePrivate -0.0720 -0.0000844
+## 4 enroll_c:typePublic  -0.0917 -0.0249   
+## 5 typePrivate           2.62    5.75     
+## 6 typePublic            3.94    6.50</code></pre>
 <p>The bootstrapped SEs are very close and similar to the robust SEs in values, and just like robust SEs, there are increases (enroll_c,enroll_c:typePrivate,enroll_c:typePublic) and decreases (intercept,typePrivate,typePublic) from the original SEs.</p>
 <p>None of the 95% confidence intervals include 0 between the lower and upper bounds, meaning that all the effects and interactions are significant, which did not change between the other models (original and robust SE).</p>
 <pre class="r"><code>measles1$mmr_c&lt;-measles$mmr-mean(measles$mmr)
@@ -400,4 +398,3 @@ summary(fit)</code></pre>
 ## Multiple R-squared:  0.2962, Adjusted R-squared:  0.296 
 ## F-statistic:  1182 on 2 and 5616 DF,  p-value: &lt; 2.2e-16</code></pre>
 <p>10-fold CV LASSO for continuous response variable, mmr. Residual standard error (RMSE) is 6.765. Compared to the RMSE from the model without LASSO, the RMSE for the model with LASSO is actually larger but not by much. This means that both model’s fit is about the same.</p>
-</div>

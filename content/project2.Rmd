@@ -16,8 +16,6 @@ knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.align = "center", warning = 
 tidy=TRUE, tidy.opts=list(width.cutoff=60), R.options=list(max.print=100))
 ```
 
-## Yu Qin 
-
 This is a document exploring vaccination in schools, with an interest to see if there is a difference in measles vaccination rates between public and private schools. The dataset includes the US state the school is located in (**state**), the category of school (**type**), private or public, the MMR (measles, mumps, rubella) vaccination rate for the school (**mmr**), enrollment number of the school (**enroll**), and medical vaccination exemption rate in the school (**xmed**). Data was obtained from https://github.com/rfordatascience/tidytuesday, with original source from The Wallstreet Journal. The dataset, after removing unusable observations, contains 10202 observations. When all NA's are removed, the dataset contains 6244 observations.
 
 I am interested in seeing if difference in policies between private, charter, and public schools will show in their MMR vaccination rates becuase the outbreak of measles typically center around schools. I suspect that public school may have better measles vaccination due to stricter government regulation.  
