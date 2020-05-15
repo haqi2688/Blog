@@ -12,13 +12,26 @@
     
     
     <item>
-      <title>Welcome to my page</title>
+      <title>My Favorite Flowers</title>
+      <link>/blog/welcome/</link>
+      <pubDate>Fri, 15 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/blog/welcome/</guid>
+      <description> picture taken at Wildseed Farms in Fredericksburg, TX
+Today let’s talk about flowers. My favorite flower is the lavender because it smells really nice and it is calming. What’s yours?
+Let’s create a list of my favorite flowers using python:
+import numpy as np flowers=np.array([&amp;quot;lavender&amp;quot;,&amp;quot;daisy&amp;quot;,&amp;quot;sunflower&amp;quot;,&amp;quot;lotus&amp;quot;]) Oh but I also like wisteria! Let’s add that in using R:
+library(reticulate) py$flowers[5]&amp;lt;-&amp;quot;wisteria&amp;quot; py$flowers ## [1] &amp;quot;lavender&amp;quot; &amp;quot;daisy&amp;quot; &amp;quot;sunflower&amp;quot; &amp;quot;lotus&amp;quot; &amp;quot;wisteria&amp;quot; </description>
+    </item>
+    
+    <item>
+      <title>Restriction Digestion and Ligation</title>
       <link>/blog/welcome-to-my-page/</link>
       <pubDate>Fri, 15 May 2020 00:00:00 +0000</pubDate>
       
       <guid>/blog/welcome-to-my-page/</guid>
       <description>The picture above is immunofluorescence of laser microirradiated cells. The lines of red are where the specific damage occured and lines of green are where the protein is recruited. It really has nothing to do with the codes below, but it is cool to look at.
-I am going to show you how to cut fragments from sequences using regex. The sequence below is for the protein ZNF219 (which if you go to my resume you’ll see that it’s the protein I’m working on), and I am trying to use EcoRI, which cuts at G/AATTC.</description>
+I am going to show you how to cut fragments from sequences using regex in python. The sequence below is for the protein ZNF219 (which if you go to my resume you’ll see that it’s the protein I’m working on), and I am trying to use NotI, which cuts at GC/GGCCGC:</description>
     </item>
     
     <item>
@@ -37,6 +50,16 @@ I am going to show you how to cut fragments from sequences using regex. The sequ
       
       <guid>/project1/</guid>
       <description>Yu Qin yq895 This is a document exploring the various identification indices of countries, with a particular emphasis on how corruption is related to each index. Each dataset represents an index with the value, year, and country. Corruption perceptions index (CPI) is determined by each country’s pereived levels of corruption in the public sector, taken from surveys and assessments. The scale goes from 0-100 and the higher the CPI, the less corrupt.</description>
+    </item>
+    
+    <item>
+      <title>About</title>
+      <link>/about/</link>
+      <pubDate>Sun, 02 Oct 2016 22:55:05 -0400</pubDate>
+      
+      <guid>/about/</guid>
+      <description>About    View this post on Instagram         A post shared by Haity Qin (@ninjaoranges) on Jul 10, 2016 at 4:55pm PDT
+  GFHVBJNKMJHGH</description>
     </item>
     
     <item>

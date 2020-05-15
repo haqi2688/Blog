@@ -11,7 +11,7 @@ theme = "hugo-sustain"
   post = "/:year/:month/:day/:slug"
 
 [params]
-  avatar = "Asset 12.jpg"
+  avatar = "Asset 11.JPEG"
   author = "Yu (Haity) Qin"
   description = "Personal blog"
 
@@ -38,6 +38,11 @@ theme = "hugo-sustain"
   url = "/projects/"
 [[menu.main]]
   name = "CV"
-  identifier = "resume"
+  identifier = "CV"
   weight = 300
   url = "/CV.pdf"
+[[menu.main]]
+  name = "about"
+  identifier = "about"
+  weight = 400
+  url = "/about/"

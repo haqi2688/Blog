@@ -1,0 +1,25 @@
+---
+title: My Favorite Flowers
+author: ''
+date: '2020-05-15'
+slug: my-favorite-flowers
+categories: []
+tags: [python,R]
+description: ''
+---
+![](/blog/2020-05-15-welcome_files/DSC_5076.jpg)
+^picture taken at Wildseed Farms in Fredericksburg, TX^
+
+Today let's talk about flowers. My favorite flower is the lavender because it smells really nice and it is calming. What's yours? 
+
+Let's create a list of my favorite flowers using python:
+```{python}
+import numpy as np
+flowers=np.array(["lavender","daisy","sunflower","lotus"])
+```
+Oh but I also like wisteria! Let's add that in using R:
+```{r}
+
+py$flowers[5]<-"wisteria"
+py$flowers
+```
