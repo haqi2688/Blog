@@ -11,10 +11,10 @@ theme = "hugo-sustain"
   post = "/:year/:month/:day/:slug"
 
 [params]
-  avatar = "Asset4.JPEG"
+  avatar = "professional pic.jpeg"
   author = "Yu (Haity) Qin"
   description = "Personal blog"
-
+ 
   # Custom assets can be linked with their paths relative to static/
   custom_css = []
   custom_js  = []
